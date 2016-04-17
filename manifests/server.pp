@@ -90,7 +90,7 @@ class nagios::server (
         'nagios-plugins-snmp',
         'nagios-plugins-ssh',
         'nagios-plugins-tcp',
-        'nagios-plugins-udp',
+        $nagios_plugins_udp,
     ]:
         ensure => installed,
     }
