@@ -39,7 +39,8 @@ class nagios::params {
             $nrpe_cfg_dir       = '/etc/nrpe.d'
             $megaclibin         = '/usr/sbin/MegaCli'
             if ( $::operatingsystem != 'Fedora' and versioncmp($::operatingsystemrelease, '7') >= 0 ) {
-              $nagios_plugins_udp = undef
+              # nagios flattens this inside the array we use it
+              $nagios_plugins_udp = []
             } else {
               $nagios_plugins_udp = 'nagios-plugins-udp'
             }
