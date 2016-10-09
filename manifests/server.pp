@@ -91,7 +91,7 @@ class nagios::server (
         'nagios-plugins-snmp',
         'nagios-plugins-ssh',
         'nagios-plugins-tcp',
-        'nagios-plugins-udp',
+        $nagios_plugins_udp,
     ]:
         ensure => installed,
     }
@@ -144,7 +144,7 @@ class nagios::server (
     }
 
     require apache_httpd::install
-    require apache_httpd::service::ssl
+    include apache_httpd::service
 
     file { '/etc/httpd/conf.d/nagios.conf':
         owner   => 'root',

@@ -36,14 +36,21 @@ class nagios::params (
             $nrpe_pid_file      = '/run/nrpe.pid'
             $nrpe_cfg_dir       = '/etc/nagios/nrpe.d'
             $megaclibin         = '/opt/bin/MegaCli'
+            $nagios_plugins_udp = 'nagios-plugins-udp'
         }
-        'Fedora': {
+        'Fedora', 'RedHat', 'CentOS': {
             $nrpe_package       = [ 'nrpe', 'nagios-plugins' ]
             $nrpe_user          = 'nrpe'
             $nrpe_group         = 'nrpe'
             $nrpe_pid_file      = '/var/run/nrpe.pid'
             $nrpe_cfg_dir       = '/etc/nrpe.d'
             $megaclibin         = '/usr/sbin/MegaCli'
+            if ( $::operatingsystem != 'Fedora' and versioncmp($::operatingsystemrelease, '7') >= 0 ) {
+              # nagios flattens this inside the array we use it
+              $nagios_plugins_udp = []
+            } else {
+              $nagios_plugins_udp = 'nagios-plugins-udp'
+            }
         }
         default: {
             $nrpe_package       = [ 'nrpe', 'nagios-plugins' ]
@@ -52,6 +59,7 @@ class nagios::params (
             $nrpe_pid_file      = '/var/run/nrpe.pid'
             $nrpe_cfg_dir       = '/etc/nagios/nrpe.d'
             $megaclibin         = '/usr/sbin/MegaCli'
+            $nagios_plugins_udp = 'nagios-plugins-udp'
         }
     }
     # Optional plugin packages, to be realized by tag where needed
@@ -76,8 +84,8 @@ class nagios::params (
         'nagios-plugins-swap',
         'nagios-plugins-users',
     ]
-    case $::operatingsystem {
-        'Fedora': {
+    case $operatingsystem {
+        'Fedora', 'RedHat', 'CentOS': {
             $plugin_dir = "/usr/${libdir}/nagios/plugins"
             @package { $nagios_plugins_packages:
                 ensure => installed,
