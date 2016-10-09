@@ -191,7 +191,7 @@ class nagios::server (
         owner   => 'root',
         group   => 'root',
         mode    => '0644',
-        content => template('nagios/nagios.cfg.erb'),
+        content => template('nagios/nagios-4.cfg.erb'),
         notify  => Service['nagios'],
         require => Package['nagios'],
     }
