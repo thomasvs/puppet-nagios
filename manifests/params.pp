@@ -39,7 +39,7 @@ class nagios::params (
             $nagios_plugins_udp = 'nagios-plugins-udp'
         }
         'Fedora', 'RedHat', 'CentOS': {
-            $nrpe_package       = [ 'nrpe', 'nagios-plugins' ]
+            $nrpe_package       = [ 'nrpe', 'nagios-plugins', 'perl-LWP-Protocol-https' ]
             $nrpe_user          = 'nrpe'
             $nrpe_group         = 'nrpe'
             $nrpe_pid_file      = '/var/run/nrpe.pid'
