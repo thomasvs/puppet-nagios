@@ -143,7 +143,7 @@ class nagios::server (
     }
 
     require apache_httpd::install
-    require apache_httpd::service::ssl
+    include apache_httpd::service
 
     file { '/etc/httpd/conf.d/nagios.conf':
         owner   => 'root',
