@@ -18,9 +18,24 @@ define nagios::check::mysql_health::mode () {
   # Get the args passed to the main class for our mode
   $args_mode = getvar("nagios::check::mysql_health::args_${mode_u}")
 
-  if ( ( $modes_enabled == [] and $modes_disabled == [] ) or
-    ( $modes_enabled != [] and $mode_u in $modes_enabled ) or
-    ( $modes_disabled != [] and ! ( $mode_u in $modes_disabled ) ) )
+  # allow hiera_array to work if _enabled/_disabled is specified in hieradata
+  $modes_enabled_h = hiera_array('nagios::check::mysql_health::modes_enabled',
+    undef)
+  $modes_enabled_r = $modes_enabled_h ? {
+    undef   => $modes_enabled,
+    default => $modes_enabled_h,
+  }
+
+  $modes_disabled_h = hiera_array('nagios::check::mysql_health::modes_disabled',
+    undef)
+  $modes_disabled_r = $modes_disabled_h ? {
+    undef   => $modes_disabled,
+    default => $modes_disabled_h,
+  }
+
+  if ( ( $modes_enabled_r == [] and $modes_disabled_r == [] ) or
+    ( $modes_enabled_r != [] and $mode_u in $modes_enabled_r ) or
+    ( $modes_disabled_r != [] and ! ( $mode_u in $modes_disabled_r ) ) )
   {
     nagios::client::nrpe_file { "check_mysql_health_${mode_u}":
       ensure => $ensure,
