@@ -1,6 +1,7 @@
 define nagios::check::http (
   $ensure                   = $::nagios_check_http_ensure,
   $args,
+  $host_name                = $::nagios::client::host_name,
   $servicegroups            = $::nagios_check_http_servicegroups,
   $check_period             = $::nagios_check_http_check_period,
   $contact_groups           = $::nagios::client::service_contact_groups,
@@ -24,6 +25,7 @@ define nagios::check::http (
     ensure              => $ensure,
     check_command       => "check_nrpe_http_${title}",
     service_description => "http_${title}",
+    host_name                => $host_name,
     servicegroups            => $servicegroups,
     check_period             => $check_period,
     contact_groups           => $contact_groups,
