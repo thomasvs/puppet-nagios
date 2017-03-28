@@ -1,7 +1,7 @@
 define nagios::check::http (
   $ensure                   = $::nagios_check_http_ensure,
   $args,
-  $service_description,
+  $service_description      = undef,
   $host_name                = $::nagios::client::host_name,
   $servicegroups            = $::nagios_check_http_servicegroups,
   $check_period             = $::nagios_check_http_check_period,
