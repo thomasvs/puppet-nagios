@@ -17,6 +17,7 @@ define nagios::service (
   $max_check_attempts       = $nagios::client::service_max_check_attempts,
   $notification_period      = $nagios::client::service_notification_period,
   $use                      = $nagios::client::service_use,
+  $event_handler            = undef,
 ) {
 
   # Work around being passed undefined variables resulting in ''
@@ -56,6 +57,7 @@ define nagios::service (
     notification_period      => $final_notification_period,
     use                      => $final_use,
     tag                      => $service_tag,
+    event_handler            => $event_handler,
   }
 
 }
