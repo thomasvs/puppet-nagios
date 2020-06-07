@@ -48,3 +48,6 @@ type=AVC msg=audit(1565314269.771:1833059): avc:  denied  { read open execute ex
 type=AVC msg=audit(1566139194.065:2262359): avc:  denied  { dac_override dac_read_search } for  pid=28167 comm="unix_chkpwd" capability=2  scontext=system_u:system_r:nrpe_t:s0 tcontext=system_u:system_r:nrpe_t:s0 tclass=capability
 type=AVC msg=audit(1566157869.997:2273215): avc:  denied  { read } for  pid=4397 comm="unix_chkpwd" name="shadow" dev="sda" ino=30337 scontext=system_u:system_r:nrpe_t:s0 tcontext=system_u:object_r:shadow_t:s0 tclass=file
 type=AVC msg=audit(1566158702.311:2273886): avc:  denied  { open } for  pid=18799 comm="unix_chkpwd" path="/etc/shadow" dev="sda" ino=30337 scontext=system_u:system_r:nrpe_t:s0 tcontext=system_u:object_r:shadow_t:s0 tclass=file
+# allow event handler to restart httpd
+type=AVC msg=audit(1573106817.782:886906): avc:  denied  { read } for  pid=2737 comm="sudo" name="utmp" dev="tmpfs" ino=14414 scontext=system_u:system_r:nrpe_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file permissive=0
+
