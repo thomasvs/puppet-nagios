@@ -1,0 +1,92 @@
+#!/bin/sh
+# ==============================================================================
+# /usr/lib64/nagios/plugins/eventhandlers/refresh-swap
+#
+# Nagios event handler to refresh swap (swapoff -a; swapon -a; swapon -a fallback)
+# Triggered on WARNING or CRITICAL state transitions.
+#
+# Arguments:
+#   $1 = SERVICESTATE       (OK, WARNING, UNKNOWN, CRITICAL)
+#   $2 = SERVICESTATETYPE   (SOFT, HARD)
+#   $3 = SERVICEATTEMPT     (1, 2, 3, ...)
+# ==============================================================================
+
+SWAPOFF="/sbin/swapoff"
+SWAPON="/sbin/swapon"
+LOGGER="/usr/bin/logger"
+
+log_event() {
+    $LOGGER -t nagios-refresh-swap -p daemon.notice "$@"
+}
+
+log_error() {
+    $LOGGER -t nagios-refresh-swap -p daemon.err "$@"
+}
+
+STATE="$1"
+STATETYPE="$2"
+ATTEMPT="$3"
+
+case "$STATE" in
+OK)
+    # Service recovered or normal; no action required.
+    exit 0
+    ;;
+UNKNOWN)
+    # Indeterminate check plugin failure; do not attempt blind swap cycle.
+    exit 0
+    ;;
+WARNING|CRITICAL)
+    case "$STATETYPE" in
+    SOFT)
+        # Wait until the 3rd soft attempt before cycling swap to avoid churn on spikes.
+        case "$ATTEMPT" in
+        3)
+            log_event "Triggering swap refresh on 3rd SOFT $STATE state..."
+            ;;
+        *)
+            exit 0
+            ;;
+        esac
+        ;;
+    HARD)
+        # If the service reached a HARD failure state, attempt a definitive swap cycle.
+        log_event "Triggering swap refresh on HARD $STATE state (attempt $ATTEMPT)..."
+        ;;
+    *)
+        exit 0
+        ;;
+    esac
+    ;;
+*)
+    exit 0
+    ;;
+esac
+
+# Execute swap cycle via sudo
+log_event "Executing: sudo $SWAPOFF -a"
+if ! sudo $SWAPOFF -a; then
+    RC_SWAPOFF=$?
+    log_error "CRITICAL: 'sudo $SWAPOFF -a' failed with return code $RC_SWAPOFF (insufficient RAM or locked memory)."
+    # Re-enable swap immediately to keep existing swap active
+    sudo $SWAPON -a || true
+    exit 1
+fi
+
+log_event "Executing primary: sudo $SWAPON -a"
+if sudo $SWAPON -a; then
+    log_event "Swap refresh completed successfully."
+    exit 0
+else
+    log_error "Primary 'sudo $SWAPON -a' failed; waiting 1s before fallback attempt..."
+    sleep 1
+    log_event "Executing fallback: sudo $SWAPON -a"
+    if sudo $SWAPON -a; then
+        log_event "Fallback 'sudo $SWAPON -a' succeeded."
+        exit 0
+    else
+        RC_SWAPON=$?
+        log_error "CRITICAL: Fallback 'sudo $SWAPON -a' failed with return code $RC_SWAPON. System running WITHOUT SWAP!"
+        exit 2
+    fi
+fi
