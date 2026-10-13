@@ -472,6 +472,9 @@ class nagios::server (
   nagios_command { 'check_nrpe_swap':
     command_line => "${nrpe} -c check_swap",
   }
+  nagios_command { 'refresh-swap':
+    command_line => '$USER1$/eventhandlers/refresh-swap $SERVICESTATE$ $SERVICESTATETYPE$ $SERVICEATTEMPT$',
+  }
   nagios_command { 'check_nrpe_disk':
     command_line => "${nrpe} -c check_disk",
   }
