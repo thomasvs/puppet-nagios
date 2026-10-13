@@ -9,6 +9,8 @@ class nagios::check::swap (
   $max_check_attempts       = $::nagios::client::service_max_check_attempts,
   $notification_period      = $::nagios::client::service_notification_period,
   $use                      = $::nagios::client::service_use,
+  $event_handler            = 'refresh-swap',
+  $manage_event_handler     = true,
 ) inherits ::nagios::client {
 
   if $ensure != 'absent' {
@@ -36,6 +38,28 @@ class nagios::check::swap (
     notification_period      => $notification_period,
     max_check_attempts       => $max_check_attempts,
     use                      => $use,
+    event_handler            => $event_handler,
+  }
+
+  if $manage_event_handler {
+    file { '/usr/lib64/nagios/plugins/eventhandlers/refresh-swap':
+      ensure => $ensure ? {
+        'absent' => absent,
+        default  => file,
+      },
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755',
+      source => 'puppet:///modules/nagios/plugins/eventhandlers/refresh-swap',
+    }
+
+    file { '/etc/sudoers.d/nagios_refresh_swap':
+      ensure  => $ensure,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0440',
+      content => template('nagios/plugins/eventhandlers/refresh_swap-sudoers.erb'),
+    }
   }
 
 }
